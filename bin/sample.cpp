@@ -72,7 +72,9 @@ int main(int argc, char const *argv[]) {
     // Parse Relay source
     auto fileOrErr = llvm::MemoryBuffer::getFile(inputPath, true);
     if (auto err = fileOrErr.getError())
-        Fatal("Cannot open file {}: {}", inputPath, err.message());
+        //Fatal("Cannot open file {}: {}", inputPath, err.message());
+        return 0;
+
     auto buffer = fileOrErr->get()->getBuffer().str();
     auto irmod = tvm::IRModule::FromText(buffer, inputPath);
 
@@ -85,24 +87,32 @@ int main(int argc, char const *argv[]) {
     StringRef outputPath(outPathBuf.data(), outPathBuf.size());
     std::error_code err;
     llvm::raw_fd_ostream outStream(outputPath, err);
-    if (err) Fatal("Cannot write to file {}: {}", outputPath, err.message());
+    if (err)
+        //Fatal("Cannot write to file {}: {}", outputPath, err.message());
+        return 0;
     pm.enableIRPrinting(printNone, printModuleOnce, true, false, false,
                         outStream);
 
     // Import and compile
     auto mlirMod = relay::ImportRelay(irmod, inputPath, mlirCtx);
-    if (pm.run(mlirMod).failed()) Fatal("Failed to run passes");
+    if (pm.run(mlirMod).failed())
+        //Fatal("Failed to run passes");
+        return 0;
 
     // Export to LLVM
     registerLLVMDialectTranslation(mlirCtx);
     registerOpenMPDialectTranslation(mlirCtx);
     llvm::LLVMContext llvmCtx;
     auto llvmMod = translateModuleToLLVMIR(mlirMod, llvmCtx, inputPath);
-    if (!llvmMod) Fatal("Failed to emit LLVM IR");
+    if (!llvmMod)
+        //Fatal("Failed to emit LLVM IR");
+        return 0;
     llvm::InitializeNativeTarget();
     llvm::InitializeNativeTargetAsmPrinter();
     auto optPpl = makeOptimizingTransformer(3, 0, nullptr);
-    if (auto err = optPpl(llvmMod.get())) Fatal("Failed to optimize LLVM IR");
+    if (auto err = optPpl(llvmMod.get()))
+        //Fatal("Failed to optimize LLVM IR");
+        return 0;
 
     // Write LLVM IR to file
     path::replace_extension(outPathBuf, "ll");
@@ -111,7 +121,8 @@ int main(int argc, char const *argv[]) {
         std::error_code err;
         llvm::raw_fd_ostream outStream(outputPath, err);
         if (err)
-            Fatal("Cannot write to file {}: {}", outputPath, err.message());
+            //Fatal("Cannot write to file {}: {}", outputPath, err.message());
+            return 0;
         llvmMod->print(outStream, nullptr);
     }
 

@@ -18,7 +18,6 @@ endif()
 set(CMAKE_BUILD_WITH_INSTALL_NAME_DIR ON)
 
 find_package(MLIR REQUIRED CONFIG)
-find_package(fmt REQUIRED)
 
 set(LLVM_RUNTIME_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/bin)
 set(LLVM_LIBRARY_OUTPUT_INTDIR ${CMAKE_BINARY_DIR}/lib)
@@ -37,6 +36,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(${PROJECT_BINARY_DIR}/include)
 link_directories(${LLVM_BUILD_LIBRARY_DIR})
 link_directories(${PROJECT_BINARY_DIR}/lib)
+link_directories("3rdparty/tvm/build")
 add_definitions(${LLVM_DEFINITIONS})
 
 add_subdirectory(include)

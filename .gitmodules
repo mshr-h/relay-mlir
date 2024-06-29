@@ -1,0 +1,8 @@
+[submodule "3rdparty/tvm"]
+	path = 3rdparty/tvm
+	url = https://github.com/apache/tvm.git
+	branch = v0.16.0
+[submodule "3rdparty/llvm-project"]
+	path = 3rdparty/llvm-project
+	url = https://github.com/llvm/llvm-project.git
+	branch = llvmorg-15.0.0

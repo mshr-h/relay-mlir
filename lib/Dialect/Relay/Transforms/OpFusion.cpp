@@ -92,7 +92,7 @@ LogicalResult OpFusionPattern::matchAndRewrite(
     auto outTypes = llvm::to_vector(
         llvm::map_range(results, [](Value out) { return out.getType(); }));
     auto funcType = rewriter.getFunctionType(inTypes, outTypes);
-    auto funcName = fmt::format("fused_{}", nGroup++);
+    auto funcName = mlir::format("fused_{}", nGroup++);
     rewriter.setInsertionPointToEnd(root->getParentOp()->getBlock());
     auto func =
         rewriter.create<func::FuncOp>(root->getLoc(), funcName, funcType);

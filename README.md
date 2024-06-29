@@ -17,15 +17,52 @@ This project is NOT intended to:
 ## Dependency
 
 * A C++20 compatible compiler
+  * Install GCC 13: `sudo add-apt-repository ppa:ubuntu-toolchain-r/test && sudo apt install gcc-13 g++-13`
 * LLVM 15.0 with MLIR
 * TVM 0.8
-* [fmt](https://github.com/fmtlib/fmt)
 
-Since TVM does not provide a CMake package, you may have to manually copy its C++ headers and libraries to the build directory of this project. Besides, fmt remains to be a dependency of this project until [C++20 text formatting library](https://en.cppreference.com/w/cpp/utility/format) is fully supported in mainstream implementations of the C++ standard library. 
+Since TVM does not provide a CMake package, you may have to manually copy its C++ headers and libraries to the build directory of this project.
+
+## Build
+
+### Clone relay-mlir
+
+```bash
+git clone --recursive https://github.com/mshr-h/relay-mlir
+```
+
+### Build LLVM 15 with MLIR
+
+```bash
+cd 3rdparty/llvm-project
+cmake -B build -S ./llvm -G Ninja -DLLVM_ENABLE_PROJECTS=mlir -DLLVM_TARGETS_TO_BUILD="host;X86" -DCMAKE_BUILD_TYPE=Release -DLLVM_ENABLE_ASSERTIONS=ON -DLLVM_ENABLE_RTTI=ON -DLLVM_ENABLE_LIBEDIT=OFF
+cmake --build build
+export MLIR_DIR=`realpath build/lib/cmake/mlir`
+cd ../..
+```
+
+### Build TVM and copy its headers to include/
+
+```bash
+cd 3rdparty/tvm
+cmake -B build -S . -G Ninja -DUSE_RELAY_DEBUG=ON -DUSE_LLVM="../llvm-project/build/bin/llvm-config"
+cmake --build build
+cp -R include/tvm ../../include/
+cp -R 3rdparty/dmlc-core/include/dmlc/ ../../include/dmlc
+cp -R 3rdparty/dlpack/include/dlpack/ ../../include/dlpack
+cd ../..
+```
+
+### Build relay-mlir
+
+```bash
+cmake -S . -B build -G Ninja
+cmake --build build -j 8
+```
 
 ## Example
 
-Take this [two-layer MLP](example/mlp.txt) as an example. 
+Take this [two-layer MLP](example/mlp.txt) as an example.
 
 ```
 #[version = "0.0.5"]
